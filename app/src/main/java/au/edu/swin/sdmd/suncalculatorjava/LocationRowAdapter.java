@@ -1,12 +1,10 @@
 package au.edu.swin.sdmd.suncalculatorjava;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,10 +37,10 @@ public class LocationRowAdapter extends RecyclerView.Adapter<LocationRowAdapter.
     @Override
     public void onBindViewHolder(@NonNull LocationRowAdapter.ViewHolder holder, final int position) {
         final AULocation location =  locations.get(position);
-        TextView titleTextView = holder.cityTV;
-        titleTextView.setText(location.getCityName());
-        TextView ratingTextView = holder.locationTV;
-        ratingTextView.setText(location.getLocation());
+        TextView cityTextView = holder.cityTV;
+        cityTextView.setText(location.getCityName());
+        TextView locationTextView = holder.locationTV;
+        locationTextView.setText("Timezone: GMT " + location.getTimezone());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,7 +63,7 @@ public class LocationRowAdapter extends RecyclerView.Adapter<LocationRowAdapter.
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             cityTV = itemView.findViewById(R.id.cityName);
-            locationTV = itemView.findViewById(R.id.location);
+            locationTV = itemView.findViewById(R.id.timezone);
         }
     }
 }

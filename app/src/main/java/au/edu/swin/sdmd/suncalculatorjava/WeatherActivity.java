@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 import au.edu.swin.sdmd.suncalculatorjava.calc.AstronomicalCalendar;
@@ -27,7 +28,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
     private void initializeUI(AULocation location) {
         TextView locationTV = findViewById(R.id.locationTV);
-        locationTV.setText(location.getCityName() + " " + location.getLocation());
+        locationTV.setText(location.getCityName());
         DatePicker dp = findViewById(R.id.datePicker);
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
@@ -38,7 +39,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void updateTime(int year, int monthOfYear, int dayOfMonth, AULocation location) {
-        TimeZone tz = TimeZone.getTimeZone(location.getLocation());
+        TimeZone tz = new SimpleTimeZone(location.getTimezone(), "GMT");
         GeoLocation geolocation = new GeoLocation(location.getCityName(), location.getLatitude(), location.getLongtitude(), tz);
         AstronomicalCalendar ac = new AstronomicalCalendar(geolocation);
         ac.getCalendar().set(year, monthOfYear, dayOfMonth);

@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:ems="10"
-                android:inputType="number" />
+                android:inputType="numberSigned|numberDecimal" />
         </TableRow>
 
         <TableRow
@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:ems="10"
-                android:inputType="numberDecimal" />
+                android:inputType="numberSigned|numberDecimal" />
 
         </TableRow>
 
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:ems="10"
-                android:inputType="numberDecimal" />
+                android:inputType="numberSigned|numberDecimal" />
 
         </TableRow>
         <TableRow

@@ -7,20 +7,20 @@ class AULocation implements Parcelable {
     private String cityName;
     private double latitude;
     private double longtitude;
-    private String location;
+    private int timezone;
 
-    public AULocation(String cityName, double latitude, double longtitude, String location) {
+    public AULocation(String cityName, double latitude, double longtitude, int timezone) {
         this.cityName = cityName;
         this.latitude = latitude;
         this.longtitude = longtitude;
-        this.location = location;
+        this.timezone = timezone;
     }
 
     protected AULocation(Parcel in) {
         cityName = in.readString();
         latitude = in.readDouble();
         longtitude = in.readDouble();
-        location = in.readString();
+        timezone = in.readInt();
     }
 
     public static final Creator<AULocation> CREATOR = new Creator<AULocation>() {
@@ -47,18 +47,15 @@ class AULocation implements Parcelable {
         return longtitude;
     }
 
-    public String getLocation() {
-        return location;
+    public int getTimezone() {
+        return timezone;
     }
 
     @Override
     public String toString() {
-        return "AULocation{" +
-                "cityName='" + cityName + '\'' +
-                ", latitude=" + latitude +
-                ", longtitude=" + longtitude +
-                ", location='" + location + '\'' +
-                '}';
+        return  cityName + ',' + latitude +
+                "," + longtitude +
+                "," + timezone + "\r\n";
     }
 
     @Override
@@ -71,6 +68,6 @@ class AULocation implements Parcelable {
         parcel.writeString(this.cityName);
         parcel.writeDouble(this.latitude);
         parcel.writeDouble(this.longtitude);
-        parcel.writeString(this.location);
+        parcel.writeInt(this.timezone);
     }
 }

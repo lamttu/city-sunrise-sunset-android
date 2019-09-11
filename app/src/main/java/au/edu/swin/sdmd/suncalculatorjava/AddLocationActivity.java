@@ -28,9 +28,9 @@ public class AddLocationActivity extends AppCompatActivity {
         public void onClick(View view) {
             boolean isValidated = validateForm();
             if(isValidated){
-                Log.i("debug-img", "All field is validated");
+                Log.i("debugapp", "All field is validated");
                 Intent returnIntent = new Intent();
-                AULocation location = null;
+                AULocation location = getLocation();
                 returnIntent.putExtra("result", location);
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
@@ -44,12 +44,13 @@ public class AddLocationActivity extends AppCompatActivity {
         String strLatitude = txtLatitude .getText().toString();
         Double latitude = Double.parseDouble(strLatitude);
         EditText txtLongtitude = findViewById(R.id.txtLongtitude);
-        String strLongtitude = txtLatitude .getText().toString();
+        String strLongtitude = txtLongtitude .getText().toString();
         Double longitude = Double.parseDouble(strLongtitude);
         EditText txtTimezone = findViewById(R.id.txtLocation);
-        String strTimezone = txtLatitude .getText().toString();
+        String strTimezone = txtTimezone .getText().toString();
         Integer timezone = Integer.parseInt(strTimezone);
-        return null;
+        AULocation location = new AULocation(strCity, latitude, longitude, timezone);
+        return location;
     }
 
     public boolean validateForm(){
@@ -59,9 +60,9 @@ public class AddLocationActivity extends AppCompatActivity {
         EditText txtLatitude = findViewById(R.id.txtLatitude);
         String strLatitude = txtLatitude .getText().toString();
         EditText txtLongtitude = findViewById(R.id.txtLongtitude);
-        String strLongtitude = txtLatitude .getText().toString();
+        String strLongtitude = txtLongtitude .getText().toString();
         EditText txtTimezone = findViewById(R.id.txtLocation);
-        String strTimezone = txtLatitude .getText().toString();
+        String strTimezone = txtTimezone .getText().toString();
 
         if(TextUtils.isEmpty(strCity)){
             txtCity.setError("City cannot be empty");
@@ -76,18 +77,19 @@ public class AddLocationActivity extends AppCompatActivity {
         }
 
         if(TextUtils.isEmpty(strLongtitude)){
-            txtLatitude .setError("Longtitude cannot be empty");
+            txtLongtitude .setError("Longtitude cannot be empty");
             isValidated = false;
         }else if(!isDouble(strLongtitude)){
-            txtLatitude .setError("Longtitude must be a decimal number");
+            txtLongtitude .setError("Longtitude must be a decimal number");
             isValidated = false;
         }
 
         if(TextUtils.isEmpty(strTimezone)){
-            txtLatitude .setError("Timezone cannot be empty");
+            txtTimezone .setError("Timezone cannot be empty");
             isValidated = false;
         }else if(!isInteger(strTimezone)){
-            txtLatitude .setError("Timezone must be an integer");
+            Log.i("debugapp", "Timezone: " + strTimezone);
+            txtTimezone .setError("Timezone must be an integer");
             isValidated = false;
         }
 

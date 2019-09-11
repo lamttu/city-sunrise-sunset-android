@@ -1,6 +1,9 @@
 package au.edu.swin.sdmd.suncalculatorjava;
 
+import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,7 +34,7 @@ import au.edu.swin.sdmd.suncalculatorjava.calc.AstronomicalCalendar;
 import au.edu.swin.sdmd.suncalculatorjava.calc.GeoLocation;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<AULocation> locations;
+    private ArrayList<AULocation> locations = new ArrayList<>();
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -57,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == 1){
             if(resultCode == RESULT_OK){
                 AULocation location = intent.getParcelableExtra("result");
+                Log.i("debugapp", location.toString());
                 locations.add(location);
                 initUI();
             }
@@ -66,10 +72,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.location_list);
-        InputStream inputStream =
-                getResources().openRawResource(R.raw.au_locations);
-        locations = getLocations(inputStream);
+        try {
+            locations = getLocations();
+            Log.i("debugapp", "locations size " + locations.size());
+        } catch (IOException e) {
+            locations = new ArrayList<>();
+            Log.i("debugapp", "nofile found");
+            e.printStackTrace();
+        }
         initUI();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i("debugapp", "Go into pause, start persisting locations");
+        persistLocations();
 
     }
 
@@ -81,18 +100,23 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private ArrayList<AULocation> getLocations(InputStream res) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(res));
+    private ArrayList<AULocation> getLocations() throws IOException {
+        FileInputStream fis = openFileInput("mylocations.txt");
+        InputStreamReader isr = new InputStreamReader(fis);
+        BufferedReader br = new BufferedReader(isr);
         String line;
         ArrayList<AULocation> locations = new ArrayList<>();
+
+        Log.i("location1", "foudn the file started reading");
         try
         {
             while((line = br.readLine()) != null){
+                Log.i("debugapp", "Reading in location: " + line);
                 String[] wordsOnLine = line.split(",");
                 AULocation location = new AULocation(wordsOnLine[0],
                         Double.parseDouble(wordsOnLine[1]),
                         Double.parseDouble(wordsOnLine[2]),
-                        wordsOnLine[3]);
+                        Integer.parseInt(wordsOnLine[3]));
                 Log.i("location1", location.toString());
                 locations.add(location);
             }
@@ -100,5 +124,26 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return locations;
+    }
+
+    private void persistLocations(){
+        String filename = "mylocations.txt";
+        String fileContents = "";
+        for(AULocation location : locations){
+            fileContents += location.toString();
+        }
+        Log.i("debugapp", "IN persist Locations " + fileContents);
+        FileOutputStream outputStream;
+
+        try {
+            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream.write(fileContents.getBytes());
+            Log.i("debugapp", "fisnished persisting");
+            outputStream.close();
+        } catch (Exception e) {
+            Log.i("debugapp", "Something has gone wrong while persisting");
+            e.printStackTrace();
+        }
+
     }
 }
