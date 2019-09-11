@@ -1,12 +1,26 @@
 package au.edu.swin.sdmd.suncalculatorjava;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.DatePicker;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -15,49 +29,76 @@ import au.edu.swin.sdmd.suncalculatorjava.calc.AstronomicalCalendar;
 import au.edu.swin.sdmd.suncalculatorjava.calc.GeoLocation;
 
 public class MainActivity extends AppCompatActivity {
+    private ArrayList<AULocation> locations;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
 
+        inflater.inflate(R.menu.my_toolbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.i("debugapp", String.valueOf(item.getItemId()));
+        Log.i("debugapp", String.valueOf(R.id.addBtn));
+        switch (item.getItemId()){
+            case R.id.addBtn:
+                Log.i("debugapp", "got btn clicked");
+                Intent intent = new Intent(MainActivity.this, AddLocationActivity.class);
+                startActivityForResult(intent, 1);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+        if(requestCode == 1){
+            if(resultCode == RESULT_OK){
+                AULocation location = intent.getParcelableExtra("result");
+                locations.add(location);
+                initUI();
+            }
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initializeUI();
+        setContentView(R.layout.location_list);
+        InputStream inputStream =
+                getResources().openRawResource(R.raw.au_locations);
+        locations = getLocations(inputStream);
+        initUI();
+
     }
 
-    private void initializeUI() {
-        DatePicker dp = findViewById(R.id.datePicker);
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        dp.init(year,month,day,dateChangeHandler); // setup initial values and reg. handler
-        updateTime(year, month, day);
+    private void initUI(){
+        RecyclerView recyclerView = findViewById(R.id.rvLocation);
+        recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+        LocationRowAdapter adapter = new LocationRowAdapter(locations);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void updateTime(int year, int monthOfYear, int dayOfMonth) {
-        TimeZone tz = TimeZone.getDefault();
-        GeoLocation geolocation = new GeoLocation("Melbourne", -37.50, 145.01, tz);
-        AstronomicalCalendar ac = new AstronomicalCalendar(geolocation);
-        ac.getCalendar().set(year, monthOfYear, dayOfMonth);
-        Date srise = ac.getSunrise();
-        Date sset = ac.getSunset();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-
-        TextView sunriseTV = findViewById(R.id.sunriseTimeTV);
-        TextView sunsetTV = findViewById(R.id.sunsetTimeTV);
-        Log.d("SUNRISE Unformatted", srise+"");
-
-        sunriseTV.setText(sdf.format(srise));
-        sunsetTV.setText(sdf.format(sset));
-    }
-
-    DatePicker.OnDateChangedListener dateChangeHandler = new DatePicker.OnDateChangedListener()
-    {
-        public void onDateChanged(DatePicker dp, int year, int monthOfYear, int dayOfMonth)
+    private ArrayList<AULocation> getLocations(InputStream res) {
+        BufferedReader br = new BufferedReader(new InputStreamReader(res));
+        String line;
+        ArrayList<AULocation> locations = new ArrayList<>();
+        try
         {
-            updateTime(year, monthOfYear, dayOfMonth);
+            while((line = br.readLine()) != null){
+                String[] wordsOnLine = line.split(",");
+                AULocation location = new AULocation(wordsOnLine[0],
+                        Double.parseDouble(wordsOnLine[1]),
+                        Double.parseDouble(wordsOnLine[2]),
+                        wordsOnLine[3]);
+                Log.i("location1", location.toString());
+                locations.add(location);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
         }
-    };
-
-
+        return locations;
+    }
 }
