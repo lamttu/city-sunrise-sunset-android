@@ -22,19 +22,11 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
-import au.edu.swin.sdmd.suncalculatorjava.calc.AstronomicalCalendar;
-import au.edu.swin.sdmd.suncalculatorjava.calc.GeoLocation;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<AULocation> locations = new ArrayList<>();
+    private ArrayList<AULocation> locations ;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -75,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             locations = getLocations();
             Log.i("debugapp", "locations size " + locations.size());
-        } catch (IOException e) {
+        } catch (IOException e) { // File doesn't exist yet
             locations = new ArrayList<>();
             Log.i("debugapp", "nofile found");
             e.printStackTrace();
@@ -106,18 +98,14 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader br = new BufferedReader(isr);
         String line;
         ArrayList<AULocation> locations = new ArrayList<>();
-
-        Log.i("location1", "foudn the file started reading");
         try
         {
             while((line = br.readLine()) != null){
-                Log.i("debugapp", "Reading in location: " + line);
                 String[] wordsOnLine = line.split(",");
                 AULocation location = new AULocation(wordsOnLine[0],
                         Double.parseDouble(wordsOnLine[1]),
                         Double.parseDouble(wordsOnLine[2]),
                         Integer.parseInt(wordsOnLine[3]));
-                Log.i("location1", location.toString());
                 locations.add(location);
             }
         }catch (IOException e){
